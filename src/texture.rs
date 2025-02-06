@@ -5,11 +5,11 @@ pub struct Texture {
     data: Vec<u8>,
     width: u32,
     height: u32,
-    channel_count: usize
+    channel_count: usize,
 }
 
 pub fn load_texture(file_path: &str) -> Texture {
-    let file_path  = std::ffi::CString::new(file_path.as_bytes()).unwrap();
+    let file_path = std::ffi::CString::new(file_path.as_bytes()).unwrap();
 
     unsafe {
         let mut width = 0;
@@ -20,20 +20,18 @@ pub fn load_texture(file_path: &str) -> Texture {
             &mut width,
             &mut height,
             &mut channel_count,
-            0
+            0,
         );
 
         assert!(!data.is_null(), "Failed to load texture.");
-        let data: Vec<u8> = std::slice::from_raw_parts(
-            data,
-            (width * height * channel_count) as usize
-        ).to_vec();
+        let data: Vec<u8> =
+            std::slice::from_raw_parts(data, (width * height * channel_count) as usize).to_vec();
 
         Texture {
             data,
             width: width as u32,
             height: height as u32,
-            channel_count: channel_count as usize
+            channel_count: channel_count as usize,
         }
     }
 }
@@ -66,15 +64,25 @@ impl Texture {
                 let data: &Vec<(u8, u8, u8, u8)> = unsafe { std::mem::transmute(&self.data) };
                 let pixel = &data[x + y * (self.width as usize)];
 
-                Vec4::new(pixel.0 as f32 / 255.99, pixel.1 as f32 / 255.99, pixel.2 as f32 / 255.99, pixel.3 as f32 / 255.99)
-            },
+                Vec4::new(
+                    pixel.0 as f32 / 255.99,
+                    pixel.1 as f32 / 255.99,
+                    pixel.2 as f32 / 255.99,
+                    pixel.3 as f32 / 255.99,
+                )
+            }
             3 => {
                 let data: &Vec<(u8, u8, u8)> = unsafe { std::mem::transmute(&self.data) };
                 let pixel = &data[x + y * (self.width as usize)];
 
-                Vec4::new(pixel.0 as f32 / 255.99, pixel.1 as f32 / 255.99, pixel.2 as f32 / 255.99, 1.0)
-            },
-            _ => panic!("Failed to get pixel. (Invalid channel count)")
+                Vec4::new(
+                    pixel.0 as f32 / 255.99,
+                    pixel.1 as f32 / 255.99,
+                    pixel.2 as f32 / 255.99,
+                    1.0,
+                )
+            }
+            _ => panic!("Failed to get pixel. (Invalid channel count)"),
         }
     }
 }

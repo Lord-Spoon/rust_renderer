@@ -1,11 +1,11 @@
+use crate::{load_texture, Texture};
 use glam::*;
-use crate::{Texture, load_texture};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Vertex {
     pub position: Vec3,
     pub normal: Vec3,
-    pub tex_coord: Vec2
+    pub tex_coord: Vec2,
 }
 
 impl Default for Vertex {
@@ -13,7 +13,7 @@ impl Default for Vertex {
         Vertex {
             position: Vec3::ZERO,
             normal: Vec3::ZERO,
-            tex_coord: Vec2::ZERO
+            tex_coord: Vec2::ZERO,
         }
     }
 }
@@ -22,33 +22,32 @@ impl Default for Vertex {
 pub struct Mesh {
     pub vertices: Vec<Vertex>,
     pub indices: Vec<u32>,
-    pub material_idx: usize
+    pub material_idx: usize,
 }
 
 #[derive(Clone, Debug)]
 pub struct Material {
     pub base_color: Vec4,
-    pub base_color_texture: Option<Texture>
+    pub base_color_texture: Option<Texture>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Model {
     pub meshes: Vec<Mesh>,
-    pub materials: Vec<Material>
+    pub materials: Vec<Material>,
 }
 
 impl Default for Material {
     fn default() -> Self {
         Material {
             base_color: Vec4::ONE,
-            base_color_texture: None
+            base_color_texture: None,
         }
     }
 }
 
 pub fn load_model(file_path: &str) -> Model {
-    let (document, buffers, _images) = gltf::import(file_path)
-        .expect("Failed to load model.");
+    let (document, buffers, _images) = gltf::import(file_path).expect("Failed to load model.");
 
     let mut meshes = Vec::new();
     let mut materials = vec![Material::default(); document.materials().len()];
@@ -62,14 +61,11 @@ pub fn load_model(file_path: &str) -> Model {
             &buffers,
             &mut meshes,
             &mut materials,
-            file_path
+            file_path,
         );
     }
 
-    Model {
-        meshes,
-        materials
-    }
+    Model { meshes, materials }
 }
 
 fn process_node(
@@ -77,14 +73,12 @@ fn process_node(
     buffers: &[gltf::buffer::Data],
     meshes: &mut Vec<Mesh>,
     materials: &mut [Material],
-    file_path: &str
+    file_path: &str,
 ) {
     if let Some(mesh) = node.mesh() {
         for primitive in mesh.primitives() {
             if primitive.mode() == gltf::mesh::Mode::Triangles {
-                let reader = primitive.reader(
-                    |buffer| Some(&buffers[buffer.index()])
-                );
+                let reader = primitive.reader(|buffer| Some(&buffers[buffer.index()]));
 
                 let positions: Vec<Vec3> = {
                     let iter = reader
@@ -96,13 +90,12 @@ fn process_node(
 
                 let mut vertices: Vec<Vertex> = positions
                     .into_iter()
-                    .map(|position| {
-                        Vertex {
-                            position,
-                            ..Default::default()
-                        }
-                    }).collect();
-                
+                    .map(|position| Vertex {
+                        position,
+                        ..Default::default()
+                    })
+                    .collect();
+
                 if let Some(normals) = reader.read_normals() {
                     for (i, normal) in normals.enumerate() {
                         vertices[i].normal = Vec3::from(normal);
@@ -117,10 +110,9 @@ fn process_node(
 
                 let indices = reader
                     .read_indices()
-                    .map(|read_indices| {
-                        read_indices.into_u32().collect::<Vec<_>>()
-                    }).expect("Failed to process mesh node. (Indices are required)");
-                
+                    .map(|read_indices| read_indices.into_u32().collect::<Vec<_>>())
+                    .expect("Failed to process mesh node. (Indices are required)");
+
                 let prim_material = primitive.material();
                 let pbr = prim_material.pbr_metallic_roughness();
                 let material_idx = primitive.material().index().unwrap_or(0);
@@ -128,11 +120,15 @@ fn process_node(
                 let material = &mut materials[material_idx];
                 material.base_color = Vec4::from(pbr.base_color_factor());
                 if let Some(base_color_texture) = pbr.base_color_texture() {
-                    if let gltf::image::Source::Uri { uri, .. } = base_color_texture.texture().source().source() {
+                    if let gltf::image::Source::Uri { uri, .. } =
+                        base_color_texture.texture().source().source()
+                    {
                         let model_path = std::path::Path::new(file_path);
-                        let texture_path = model_path.parent().unwrap_or_else(|| std::path::Path::new("./")).join(uri);
+                        let texture_path = model_path
+                            .parent()
+                            .unwrap_or_else(|| std::path::Path::new("./"))
+                            .join(uri);
                         let texture_path_str = texture_path.into_os_string().into_string().unwrap();
-
 
                         material.base_color_texture = Some(load_texture(&texture_path_str));
                     }
@@ -141,7 +137,7 @@ fn process_node(
                 meshes.push(Mesh {
                     vertices,
                     indices,
-                    material_idx
+                    material_idx,
                 });
             }
         }
