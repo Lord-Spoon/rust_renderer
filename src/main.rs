@@ -94,6 +94,7 @@ fn draw_triangle(
                     let light_dir = Vec3::new(0.3, -0.8, -0.4).normalize();
                     let light_intensity = normal.dot(-light_dir).clamp(0.0, 1.0);
                     let ambient_light_intensity = 0.25 as f32;
+                    //lighting controls
 
                     let final_color = (base_color * light_intensity) + (base_color * ambient_light_intensity);
 
@@ -112,7 +113,7 @@ fn draw_model(
     inv_trans_model_matrix: &Mat4
 ) {
     for mesh in &model.meshes {
-        for i in 0..(mesh.indices.len() /3) {
+        for i in 0..(mesh.indices.len() / 3) {
             let v0 = mesh.vertices[mesh.indices [i * 3] as usize];
             let v1 = mesh.vertices[mesh.indices [i * 3 + 1] as usize];
             let v2 = mesh.vertices[mesh.indices [i * 3 + 2] as usize];
@@ -129,6 +130,7 @@ fn main() {
     let mut depth_buffer = Framebuffer::new(window.framebuffer().width(), window.framebuffer().height());
 
     let model = load_model("assets/feesh/BarramundiFish.gltf");
+    //import model here
 
     let timer = SystemTime::now();
     
@@ -139,7 +141,7 @@ fn main() {
             depth_buffer = Framebuffer::new(framebuffer.width(), framebuffer.height());
         }
 
-        framebuffer.clear(from_u8_rgb(255, 255, 255));
+        framebuffer.clear(from_u8_rgb(255, 255, 255)); //background color
         depth_buffer.clear(u32::MAX);
 
         let elapsed_time = timer.elapsed().unwrap().as_secs_f32();
@@ -148,6 +150,8 @@ fn main() {
         let model_matrix = Mat4::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), elapsed_time) * Mat4::from_axis_angle(Vec3::new(1.0, 0.0, 0.0), (0.0f32).to_radians());
         let view_matrix = Mat4::from_translation(Vec3::new(0.0, -0.15, -0.75));
         let proj_matrix = Mat4::perspective_rh((60.0f32).to_radians(), aspect_ratio, 0.01, 300.0);
+        //model orientation + spin controls
+
         let mvp = proj_matrix * view_matrix * model_matrix;
         let inv_trans_model_matrix = model_matrix.inverse().transpose();
 
