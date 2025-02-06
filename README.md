@@ -5,4 +5,4 @@
 <br>
 <p>That's it.</p>
 <br>
-*Credits to GameDevGraphics and glTF sample assets*
+<i>Credits to GameDevGraphics and glTF sample assets</i>
