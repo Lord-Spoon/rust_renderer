@@ -93,9 +93,9 @@ fn draw_triangle(
                     
                     let light_dir = Vec3::new(0.3, -0.8, -0.4).normalize();
                     let light_intensity = normal.dot(-light_dir).clamp(0.0, 1.0);
-                    let ambient_light_intensity = 0.15 as f32;
+                    let ambient_light_intensity = 0.25 as f32;
 
-                    let final_color = base_color * light_intensity + ambient_light_intensity;
+                    let final_color = (base_color * light_intensity) + (base_color * ambient_light_intensity);
 
                     framebuffer.set_pixel(x, y, from_vec3_rgb(&final_color.xyz()));
                 }                
