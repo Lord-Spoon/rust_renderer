@@ -4,3 +4,5 @@
 <br>
 <br>
 <p>That's it.</p>
+<br>
+*Credits to GameDevGraphics and glTF sample assets*
