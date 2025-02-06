@@ -1,0 +1,10 @@
+[package]
+name = "threed_render"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+glam = "0.29.2"
+gltf = "1.4.1"
+minifb = "0.28.0"
+stb_image = "0.3.0"
