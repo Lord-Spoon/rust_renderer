@@ -173,9 +173,10 @@ fn main() {
 
         let elapsed_time = timer.elapsed().unwrap().as_secs_f32();
         let aspect_ratio = framebuffer.width() as f32 / framebuffer.height() as f32;
+        let spin_speed = 3.0;
 
-        let model_matrix = Mat4::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), elapsed_time)
-            * Mat4::from_axis_angle(Vec3::new(1.0, 0.0, 0.0), (0.0f32).to_radians());
+        let model_matrix = Mat4::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), elapsed_time * spin_speed)
+            * Mat4::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), (0.0f32).to_radians());
         let view_matrix = Mat4::from_translation(Vec3::new(0.0, -0.15, -0.75));
         let proj_matrix = Mat4::perspective_rh((60.0f32).to_radians(), aspect_ratio, 0.01, 300.0);
         //model orientation + spin controls
